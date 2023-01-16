@@ -3,15 +3,25 @@
 
 
 type Query {
+  """Returns a single trader by their email address"""
   trader(
     """The email of the trader"""
     email: String!
   ): Trader
+
+  """Returns all traders"""
   traders: [Trader!]!
 }
 
 type Trader {
+  """The country the trader operates in"""
   countryCode: String!
+
+  """The email address of the trader"""
   email: String!
+
+  """
+  The permissions associated to the trader, comprised of business entity, role and team
+  """
   entitlements: [String]
 }
