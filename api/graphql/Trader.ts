@@ -14,13 +14,8 @@ export const TraderQuery = extendType({
   definition(t) {
     t.field("traders", {
       type: nonNull(list(nonNull("Trader"))),
-      resolve() {
-        return [
-          {
-            id: "1",
-            name: "Barry Chuckle",
-          },
-        ];
+      resolve(_source, _args, { dataSources }) {
+        return dataSources.tradersAPI.getAll();
       },
     });
     t.field("trader", {
@@ -31,14 +26,12 @@ export const TraderQuery = extendType({
           type: nonNull("ID"),
         }),
       },
-      resolve(_, { id }) {
-        if (id !== "1") {
+      resolve(_, { id }, { dataSources }) {
+        const trader = dataSources.tradersAPI.findById(id);
+        if (!trader) {
           throw new GraphQLError("trader not found");
         }
-        return {
-          id: "1",
-          name: "Barry Chuckle",
-        };
+        return trader;
       },
     });
   },
