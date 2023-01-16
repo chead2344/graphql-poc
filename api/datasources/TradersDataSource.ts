@@ -1,22 +1,46 @@
-const traders = [
-  {
-    id: "1",
-    name: "Barry Chuckle",
-  },
-];
+import {
+  BlobClient,
+  BlobServiceClient,
+  ContainerClient,
+} from "@azure/storage-blob";
+
+type BlobTrader = {
+  email: string;
+};
+
+// {
+//   "countryCode": "US",
+//   "email": "some.user.1656670819048.0232@shell.com",
+//   "entitlements": [
+//     "BITUMEN|Initial business group|SOU"
+//   ],
+//   "userId": ""
+// }
 
 export default class TradersDataSource {
-  private connectionString;
+  private blobClient: BlobClient;
 
-  constructor(connectionString: string) {
-    this.connectionString = connectionString;
+  constructor(
+    connectionString: string,
+    containerName: string,
+    blobName: string
+  ) {
+    this.blobClient = BlobServiceClient.fromConnectionString(connectionString)
+      .getContainerClient(containerName)
+      .getBlobClient(blobName);
   }
 
-  getAll() {
-    return traders;
+  async getAll() {
+    const response = await this.blobClient.downloadToBuffer();
+    const { accounts } = JSON.parse(response.toString());
+    console.log(JSON.stringify(Object.values(accounts)[0], null, 2));
+    return Object.values(accounts) as BlobTrader[];
   }
 
-  findById(id: string) {
-    return traders.find((_) => _.id === id);
+  async findByEmail(email: string) {
+    const response = await this.blobClient.downloadToBuffer();
+    const { accounts } = JSON.parse(response.toString());
+    const traders = Object.values(accounts) as BlobTrader[];
+    return traders.find((x) => x.email === email);
   }
 }

@@ -4,8 +4,7 @@ import { arg, extendType, list, nonNull, objectType } from "nexus";
 export const Trader = objectType({
   name: "Trader",
   definition(t) {
-    t.nonNull.id("id");
-    t.nonNull.string("name");
+    t.nonNull.string("email");
   },
 });
 
@@ -21,13 +20,13 @@ export const TraderQuery = extendType({
     t.field("trader", {
       type: "Trader",
       args: {
-        id: arg({
-          description: "The ID of the trader",
-          type: nonNull("ID"),
+        email: arg({
+          description: "The email of the trader",
+          type: nonNull("String"),
         }),
       },
-      resolve(_, { id }, { dataSources }) {
-        const trader = dataSources.tradersAPI.findById(id);
+      async resolve(_, { email }, { dataSources }) {
+        const trader = await dataSources.tradersAPI.findByEmail(email);
         if (!trader) {
           throw new GraphQLError("trader not found");
         }

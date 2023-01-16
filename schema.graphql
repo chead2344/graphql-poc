@@ -4,13 +4,12 @@
 
 type Query {
   trader(
-    """The ID of the trader"""
-    id: ID!
+    """The email of the trader"""
+    email: String!
   ): Trader
   traders: [Trader!]!
 }
 
 type Trader {
-  id: ID!
-  name: String!
+  email: String!
 }

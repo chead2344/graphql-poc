@@ -30,8 +30,7 @@ export interface NexusGenScalars {
 export interface NexusGenObjects {
   Query: {};
   Trader: { // root type
-    id: string; // ID!
-    name: string; // String!
+    email: string; // String!
   }
 }
 
@@ -51,8 +50,7 @@ export interface NexusGenFieldTypes {
     traders: NexusGenRootTypes['Trader'][]; // [Trader!]!
   }
   Trader: { // field return type
-    id: string; // ID!
-    name: string; // String!
+    email: string; // String!
   }
 }
 
@@ -62,15 +60,14 @@ export interface NexusGenFieldTypeNames {
     traders: 'Trader'
   }
   Trader: { // field return type name
-    id: 'ID'
-    name: 'String'
+    email: 'String'
   }
 }
 
 export interface NexusGenArgTypes {
   Query: {
     trader: { // args
-      id: string; // ID!
+      email: string; // String!
     }
   }
 }
