@@ -11,5 +11,7 @@ type Query {
 }
 
 type Trader {
+  countryCode: String!
   email: String!
+  entitlements: [String]
 }

@@ -4,7 +4,9 @@ import { arg, extendType, list, nonNull, objectType } from "nexus";
 export const Trader = objectType({
   name: "Trader",
   definition(t) {
+    t.nonNull.string("countryCode");
     t.nonNull.string("email");
+    t.list.string("entitlements");
   },
 });
 

@@ -30,7 +30,9 @@ export interface NexusGenScalars {
 export interface NexusGenObjects {
   Query: {};
   Trader: { // root type
+    countryCode: string; // String!
     email: string; // String!
+    entitlements?: Array<string | null> | null; // [String]
   }
 }
 
@@ -50,7 +52,9 @@ export interface NexusGenFieldTypes {
     traders: NexusGenRootTypes['Trader'][]; // [Trader!]!
   }
   Trader: { // field return type
+    countryCode: string; // String!
     email: string; // String!
+    entitlements: Array<string | null> | null; // [String]
   }
 }
 
@@ -60,7 +64,9 @@ export interface NexusGenFieldTypeNames {
     traders: 'Trader'
   }
   Trader: { // field return type name
+    countryCode: 'String'
     email: 'String'
+    entitlements: 'String'
   }
 }
 

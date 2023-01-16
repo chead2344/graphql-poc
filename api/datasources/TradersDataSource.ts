@@ -1,46 +1,44 @@
-import {
-  BlobClient,
-  BlobServiceClient,
-  ContainerClient,
-} from "@azure/storage-blob";
+import { KeyValueCache } from "@apollo/utils.keyvaluecache";
+import { BlobClient } from "@azure/storage-blob";
 
 type BlobTrader = {
+  countryCode: string;
   email: string;
+  entitlements: string[];
+  userId: string;
 };
 
-// {
-//   "countryCode": "US",
-//   "email": "some.user.1656670819048.0232@shell.com",
-//   "entitlements": [
-//     "BITUMEN|Initial business group|SOU"
-//   ],
-//   "userId": ""
-// }
+const CACHE_KEY = "downloaded-accounts";
+const CACHE_TTL_SECONDS = 60;
 
 export default class TradersDataSource {
-  private blobClient: BlobClient;
-
   constructor(
-    connectionString: string,
-    containerName: string,
-    blobName: string
-  ) {
-    this.blobClient = BlobServiceClient.fromConnectionString(connectionString)
-      .getContainerClient(containerName)
-      .getBlobClient(blobName);
+    private cache: KeyValueCache<string>,
+    private client: BlobClient
+  ) {}
+
+  private async getCachedData() {
+    const cached = await this.cache.get(CACHE_KEY);
+    if (cached) {
+      return cached;
+    }
+    const data = (await this.client.downloadToBuffer()).toString();
+    await this.cache.set(CACHE_KEY, data, { ttl: CACHE_TTL_SECONDS });
+    return data;
   }
 
-  async getAll() {
-    const response = await this.blobClient.downloadToBuffer();
-    const { accounts } = JSON.parse(response.toString());
-    console.log(JSON.stringify(Object.values(accounts)[0], null, 2));
-    return Object.values(accounts) as BlobTrader[];
+  private async getTraders() {
+    const data = await this.getCachedData();
+    const { accounts } = JSON.parse(data);
+    return Object.values<BlobTrader>(accounts);
+  }
+
+  getAll() {
+    return this.getTraders();
   }
 
   async findByEmail(email: string) {
-    const response = await this.blobClient.downloadToBuffer();
-    const { accounts } = JSON.parse(response.toString());
-    const traders = Object.values(accounts) as BlobTrader[];
+    const traders = await this.getTraders();
     return traders.find((x) => x.email === email);
   }
 }
