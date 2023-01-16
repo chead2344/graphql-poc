@@ -1,4 +1,4 @@
-import { ApolloError } from "apollo-server";
+import { GraphQLError } from "graphql";
 import { arg, extendType, list, nonNull, objectType } from "nexus";
 
 export const Trader = objectType({
@@ -33,7 +33,7 @@ export const TraderQuery = extendType({
       },
       resolve(_, { id }) {
         if (id !== "1") {
-          throw new ApolloError("trader not found");
+          throw new GraphQLError("trader not found");
         }
         return {
           id: "1",

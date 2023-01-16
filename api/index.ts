@@ -1,5 +1,11 @@
+import { startStandaloneServer } from "@apollo/server/standalone";
 import { server } from "./server";
 
-server.listen().then(({ url }) => {
-  console.log(`🚀 Server ready at ${url}`);
-});
+(async () => {
+  const { url } = await startStandaloneServer(server, {
+    context: async () => ({}),
+    listen: { port: 4000 },
+  });
+
+  console.log(`🚀  Server ready at ${url}`);
+})();
