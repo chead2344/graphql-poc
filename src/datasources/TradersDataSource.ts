@@ -13,22 +13,23 @@ const CACHE_TTL_SECONDS = 60;
 
 export default class TradersDataSource {
   constructor(
-    private cache: KeyValueCache<string>,
-    private client: BlobClient
+    private readonly cache: KeyValueCache<string>,
+    private readonly client: BlobClient
   ) {}
 
-  private async getCachedData() {
+  private async getCachedDataOrDownload() {
     const cached = await this.cache.get(CACHE_KEY);
     if (cached) {
       return cached;
     }
-    const data = (await this.client.downloadToBuffer()).toString();
+    const raw = await this.client.downloadToBuffer();
+    const data = raw.toString();
     await this.cache.set(CACHE_KEY, data, { ttl: CACHE_TTL_SECONDS });
     return data;
   }
 
   private async getTraders() {
-    const data = await this.getCachedData();
+    const data = await this.getCachedDataOrDownload();
     const { accounts } = JSON.parse(data);
     return Object.values<BlobTrader>(accounts);
   }
@@ -39,6 +40,6 @@ export default class TradersDataSource {
 
   async findByEmail(email: string) {
     const traders = await this.getTraders();
-    return traders.find((x) => x.email === email);
+    return traders.find((_) => _.email === email);
   }
 }
