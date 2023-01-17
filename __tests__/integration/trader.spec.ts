@@ -2,7 +2,7 @@ import { strict as assert } from "node:assert";
 import TradersDataSource from "../../src/datasources/TradersDataSource";
 import { server } from "../../src/server";
 
-it("should return all traders", async () => {
+it("should return a trader by their email address", async () => {
   // ARRANGE
   const tradersAPI: Partial<TradersDataSource> = {
     getAll: jest.fn().mockResolvedValue([
@@ -28,14 +28,17 @@ it("should return all traders", async () => {
   const response = await server.executeOperation(
     {
       query: `
-        query {
-          traders {
+        query($email: String!) {
+          trader(email: $email) {
             email
             countryCode
             entitlements
           }
         }
     `,
+      variables: {
+        email: "bruce-forsythe@gmail.net",
+      },
     },
     { contextValue }
   );
@@ -43,21 +46,11 @@ it("should return all traders", async () => {
   // ASSERT
   assert(response.body.kind === "single");
   expect(response.body.singleResult.errors).toBeUndefined();
-  expect(response.body.singleResult.data?.traders).toMatchInlineSnapshot(`
-[
-  {
-    "countryCode": "US",
-    "email": "barry.chuckle@chucklevision.net",
-    "entitlements": [
-      "write",
-      "read",
-    ],
-  },
-  {
-    "countryCode": "EN",
-    "email": "bruce-forsythe@gmail.net",
-    "entitlements": null,
-  },
-]
+  expect(response.body.singleResult.data?.trader).toMatchInlineSnapshot(`
+{
+  "countryCode": "EN",
+  "email": "bruce-forsythe@gmail.net",
+  "entitlements": null,
+}
 `);
 });

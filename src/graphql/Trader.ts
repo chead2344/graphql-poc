@@ -38,7 +38,8 @@ export const TraderQuery = extendType({
         }),
       },
       async resolve(_, { email }, { dataSources }) {
-        const trader = await dataSources.tradersAPI.findByEmail(email);
+        const traders = await dataSources.tradersAPI.getAll();
+        const trader = traders.find((_) => _.email === email);
         if (!trader) {
           throw new GraphQLError("trader not found");
         }

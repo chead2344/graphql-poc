@@ -17,7 +17,7 @@ export default class TradersDataSource {
     private readonly client: BlobClient
   ) {}
 
-  private async getCachedDataOrDownload() {
+  private async downloadData() {
     const cached = await this.cache.get(CACHE_KEY);
     if (cached) {
       return cached;
@@ -28,18 +28,9 @@ export default class TradersDataSource {
     return data;
   }
 
-  private async getTraders() {
-    const data = await this.getCachedDataOrDownload();
+  async getAll() {
+    const data = await this.downloadData();
     const { accounts } = JSON.parse(data);
     return Object.values<BlobTrader>(accounts);
-  }
-
-  getAll() {
-    return this.getTraders();
-  }
-
-  async findByEmail(email: string) {
-    const traders = await this.getTraders();
-    return traders.find((_) => _.email === email);
   }
 }
